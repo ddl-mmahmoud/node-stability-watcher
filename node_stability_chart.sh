@@ -15,9 +15,13 @@ chart_image="$results/node-stability-$stagename.png"
 uv run circleci_explore.py --slug gh/cerebrotech/domino --build "$build_id" --pipeline-summary > "$pipeline_json"
 
 start_time="$(jq -r '.pipeline.workflows[].jobs[] | select(.name | contains("create-deployment")) | .end' "$pipeline_json" | sed -e 's/T/ /g' -e 's/Z$/+0000/g')"
-end_time="$(jq -r '.pipeline.end' "$pipeline_json" | sed -e 's/T/ /g' -e 's/Z$/+0000/g')"
+end_time="$(jq -r '.pipeline.workflows[].jobs[] | select(.name | contains("test-cleanup")) | .start // ""' "$pipeline_json" | sed -e 's/T/ /g' -e 's/Z$/+0000/g')"
+
+if ! [ -n "$end_time" ]; then
+    echo "Could not determine start time, assuming still running and defaulting to now"
+    end_time="$(date -u +"%Y-%m-%d %H:%M:%S+0000")"
+fi
 
 uv run newrelic_chart_dashboard.py --image-out "$chart_image" --visualization viz.stacked-bar --title "Node stability of $stagename" <<EOF
 SELECT uniqueCount(\`label.kubernetes.io/hostname\`) FROM K8sNodeSample WHERE \`label.dominodatalab.com/node-pool\` in ('platform') and clusterName = '$stagename' FACET \`label.dominodatalab.com/node-pool\`, \`label.node.kubernetes.io/instance-type\`, \`label.topology.kubernetes.io/zone\` TIMESERIES 1 minutes SINCE '$start_time' UNTIL '$end_time'
 EOF
-
