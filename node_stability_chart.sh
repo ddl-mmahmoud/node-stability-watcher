@@ -5,7 +5,7 @@ build_id="$(grep -oP '\d+$' <<< "$build_id_or_url")"
 
 results="/mnt/artifacts"
 
-pipline_json="$results/pipeline.json"
+pipeline_json="$results/pipeline.json"
 chart_image="$results/node-stability-$stagename.png"
 
 stagename="$(uv run circleci_explore.py --slug gh/cerebrotech/domino --build "$build_id" --workflow-name e2e-smoke --job-name e2e-smoke-create-deployment  --step-logs DOMINO_USERHOST | grep DOMINO_USERHOST | grep -m1 -oP '(?<=https://).*?(?=[.])')"
