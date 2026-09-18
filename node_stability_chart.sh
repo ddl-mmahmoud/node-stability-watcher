@@ -18,7 +18,7 @@ start_time="$(jq -r '.pipeline.workflows[].jobs[] | select(.name | contains("cre
 end_time="$(jq -r '.pipeline.workflows[].jobs[] | select(.name | contains("test-cleanup")) | .start // ""' "$pipeline_json" | sed -e 's/T/ /g' -e 's/Z$/+0000/g')"
 
 if ! [ -n "$end_time" ]; then
-    echo "Could not determine start time, assuming still running and defaulting to now"
+    echo "Could not determine end time, assuming still running and defaulting to now"
     end_time="$(date -u +"%Y-%m-%d %H:%M:%S+0000")"
 fi
 
