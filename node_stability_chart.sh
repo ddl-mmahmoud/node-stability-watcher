@@ -3,7 +3,7 @@
 build_id_or_url="$1"
 build_id="$(grep -oP '\d+$' <<< "$build_id_or_url")"
 
-result="/mnt/artifacts"
+results="/mnt/artifacts"
 
 pipline_json="$results/pipeline.json"
 chart_image="$results/node-stability-$stagename.png"
